@@ -1,7 +1,9 @@
 import os
 import cv2
-from skimage import img_as_float, img_as_ubyte
+from skimage import img_as_ubyte, img_as_float32
 import numpy as np
+import tensorflow as tf
+
 
 
 def load_image(images_path, image_name):
@@ -12,7 +14,7 @@ def load_image(images_path, image_name):
 
 
 def image_to_float(image):
-    return img_as_float(image)
+    return img_as_float32(image)
 
 
 def image_to_uint8(image):
@@ -58,3 +60,14 @@ def square_random_crop_image(image, crop_size):
     y_end = min(new_center_y + half_crop, image.shape[0])
 
     return image[x_start:x_end, y_start:y_end]
+
+
+
+def augment_image(image):
+    image = tf.image.random_brightness(image, 0.2)
+    image = tf.image.random_contrast(image, 0.5, 2.0)
+    image = tf.image.random_saturation(image, 0.75, 1.25)
+    image = tf.image.random_hue(image, 0.1)
+    image = tf.image.random_flip_left_right(image)
+    image = tf.image.random_flip_up_down(image)
+    return image.numpy()

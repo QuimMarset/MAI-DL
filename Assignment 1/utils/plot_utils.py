@@ -5,9 +5,9 @@ import os
 
 
 
-def plot_learning_curve(train_values, val_values, metric_name, save_path, experiment_number):
+def plot_learning_curve(train_values, val_values, metric_name, save_path):
     sns.set(style="whitegrid")
-    plt.figure(figsize=(8, 6))
+    plt.figure(figsize=(12, 6))
 
     num_epochs = len(train_values)
     epochs_range = range(1, num_epochs+1)
@@ -19,7 +19,7 @@ def plot_learning_curve(train_values, val_values, metric_name, save_path, experi
     plt.xlabel('Epoch')
     plt.ylabel(metric_name)
     plt.legend()
-    plt.title(f'Experiment {experiment_number} {metric_name} curves')
+    plt.title(f'Training and validation {metric_name} curves')
     plt.tight_layout()
     plt.savefig(os.path.join(save_path, f'{metric_name}_curves.png'))
     plt.close()
@@ -33,8 +33,9 @@ def compute_class_frequencies(labels, num_classes):
     return frequencies
 
 
-def plot_classes_histogram(labels, num_classes, class_names, save_path, partition='whole', log_scale=True):
+def plot_classes_histogram(labels, class_names, save_path, partition='whole', log_scale=False):
     sns.set(style="whitegrid")
+    num_classes = len(class_names)
     frequencies = compute_class_frequencies(labels, num_classes)
     plt.figure(figsize=(8, 6))
     plt.bar(range(num_classes), frequencies, label='Class proportion', log=log_scale)

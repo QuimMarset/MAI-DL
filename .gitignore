@@ -1,1 +1,8 @@
+.vscode/
 MAME*/
+__pycache__
+experiments/
+processed*/
+results/
+*.npy
+*.png

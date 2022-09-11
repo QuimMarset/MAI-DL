@@ -13,7 +13,7 @@ def create_folder(path, folder_name):
 
 
 def get_number_subfolders(path):
-    return sum(os.path.isdir(elem) for elem in os.listdir(path))
+    return sum(os.path.isdir(join_path(path, elem)) for elem in os.listdir(path))
 
 
 def create_new_experiment_folder(path):
