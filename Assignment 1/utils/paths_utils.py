@@ -2,8 +2,8 @@ import os
 
 
 
-def join_path(path, name):
-    return os.path.join(path, name)
+def join_path(base_path, *path_names):
+    return os.path.join(base_path, *path_names)
 
 
 def create_folder(path, folder_name):

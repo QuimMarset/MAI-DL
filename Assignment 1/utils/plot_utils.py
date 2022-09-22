@@ -1,19 +1,20 @@
 import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
-import os
+from utils.paths_utils import join_path
+from utils.image_utils import load_image
 
 
 
 def plot_learning_curve(train_values, val_values, metric_name, save_path):
     sns.set(style="whitegrid")
-    plt.figure(figsize=(12, 6))
+    plt.figure(figsize=(20, 6))
 
     num_epochs = len(train_values)
     epochs_range = range(1, num_epochs+1)
 
-    plt.plot(train_values, label=f'Train {metric_name}')
-    plt.plot(val_values, label=f'Val {metric_name}')
+    plt.plot(epochs_range, train_values, label=f'Train {metric_name}')
+    plt.plot(epochs_range, val_values, label=f'Val {metric_name}')
     
     plt.xticks(epochs_range)
     plt.xlabel('Epoch')
@@ -21,7 +22,7 @@ def plot_learning_curve(train_values, val_values, metric_name, save_path):
     plt.legend()
     plt.title(f'Training and validation {metric_name} curves')
     plt.tight_layout()
-    plt.savefig(os.path.join(save_path, f'{metric_name}_curves.png'))
+    plt.savefig(join_path(save_path, f'{metric_name}_curves.png'))
     plt.close()
 
 
@@ -43,5 +44,22 @@ def plot_classes_histogram(labels, class_names, save_path, partition='whole', lo
     plt.legend()
     plt.title(f'Classes proportion in the {partition} dataset')
     plt.tight_layout()
-    plt.savefig(os.path.join(save_path, f'{partition}_class_proportion.png'))
+    plt.savefig(join_path(save_path, f'{partition}_class_proportion.png'))
     plt.close()
+
+
+def plot_random_25_images(images_path, image_names, labels, class_names):
+    plt.figure(figsize=(10, 10))
+
+    indices_range = range(len(image_names))
+    selected_indices = np.random.choice(indices_range, 25, replace=False)
+    
+    for i, selected_index in enumerate(selected_indices):
+        plt.subplot(5, 5, i+1)
+        plt.imshow(load_image(images_path, image_names[selected_index]))
+        label_num = labels[selected_index]
+        plt.title(class_names[label_num], fontsize=10)
+        plt.axis('off')
+
+    plt.tight_layout()     
+    plt.show()

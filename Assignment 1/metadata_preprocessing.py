@@ -11,16 +11,16 @@ def preprocess_labels_metadata(labels_csv_path, save_path):
     labels_dataframe = pd.read_csv(labels_csv_path, header=None)
     # Col 1 contains the class names, and col 0 the indices (0...28)
     labels_dict = dict(zip(labels_dataframe[1], labels_dataframe[0]))
-    write_string_array_to_file(list(labels_dict.keys()), os.path.join(save_path, 'class_names.txt'))
+    write_string_array_to_file(list(labels_dict.keys()), join_path(save_path, 'class_names.txt'))
     return labels_dict
 
 
 def write_names_labels_to_file(partition_dataframe, label_dict, save_path, partition_name):
-    names_array = partition_dataframe['Image file'].to_numpy()
-    labels_array =  partition_dataframe['Medium'].to_numpy()
-    encoded_labels_list = [label_dict[label.strip()] for label in labels_array]
-    write_string_array_to_file(names_array, os.path.join(save_path, f'{partition_name}_data.txt'))
-    write_int_array_to_file(encoded_labels_list, os.path.join(save_path, f'{partition_name}_labels.txt'))
+    names = partition_dataframe['Image file'].to_numpy()
+    labels =  partition_dataframe['Medium'].to_numpy()
+    encoded_labels = [label_dict[label.strip()] for label in labels]
+    write_string_array_to_file(names, join_path(save_path, f'{partition_name}_data.txt'))
+    write_int_array_to_file(encoded_labels, join_path(save_path, f'{partition_name}_labels.txt'))
 
 
 def preprocess_dataset_metadata(dataset_csv_path, labels_dict, save_path):

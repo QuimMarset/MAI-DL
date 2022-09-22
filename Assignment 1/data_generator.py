@@ -1,4 +1,5 @@
 import numpy as np
+import tensorflow as tf
 from tensorflow import keras
 from utils.image_utils import *
 
@@ -40,7 +41,6 @@ class DataGenerator(keras.utils.Sequence):
 
         for (i, file_name) in enumerate(batch_file_names):
             image = load_image(self.images_path, file_name)
-            # image = resize_image(image, self.image_shape[:-1])
             image = image_to_float(image)
             image = (image - self.mean_std[0]) / self.mean_std[1]
             batch_images[i] = image
@@ -58,14 +58,30 @@ class DataGenerator(keras.utils.Sequence):
 
 class DataGeneratorAugmentation(DataGenerator):
 
+    def __init__(self, batch_size, images_path, file_names, image_shape, labels, num_classes, mean_std, seed=1412):
+        super().__init__(batch_size, images_path, file_names, image_shape, labels, num_classes, mean_std, seed)
+
+        def random_central_crop(batch):
+            if np.random.rand() < 0.5:
+                return tf.image.resize(tf.image.central_crop(batch, 0.75), image_shape[:2])
+            return batch
+        
+        self.augmentation_model = keras.Sequential([
+            keras.layers.RandomRotation(0.2, fill_mode='nearest'),
+            keras.layers.RandomFlip('horizontal_and_vertical'),
+            #keras.layers.RandomZoom(0.1, 0.1),
+            keras.layers.RandomContrast(0.3),
+            keras.layers.Lambda(random_central_crop),
+            keras.layers.Lambda(lambda batch : (batch - self.mean_std[0]) / self.mean_std[1])
+        ])
+
     def load_batch_images(self, batch_file_names):
         batch_images = np.zeros((self.batch_size, *self.image_shape))
 
         for (i, file_name) in enumerate(batch_file_names):
             image = load_image(self.images_path, file_name)
             image = image_to_float(image)
-            image = augment_image(image)
-            image = (image - self.mean_std[0]) / self.mean_std[1]
             batch_images[i] = image
 
-        return batch_images
+        augmented_batch = self.augmentation_model(batch_images)
+        return augmented_batch

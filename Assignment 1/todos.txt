@@ -1,6 +1,2 @@
 
 TODO: Provar SGDW (SGD amb weight decay + moment)
-
-TODO: Unificar criteri de noms
-TODO: Afegir logging dels processos
-TODO: Guardar el num de classes d'una millor forma

@@ -1,4 +1,3 @@
-from ntpath import join
 import numpy as np
 from utils.paths_utils import *
 from utils.file_io_utils import read_file_to_array, save_mean_std_to_npy
@@ -10,7 +9,7 @@ if __name__ == '__main__':
 
     root_path = './'
     processed_path = join_path(root_path, 'processed_dataset')
-    data_path = join_path(join_path(root_path, 'MAMe_data_256'), 'data_256')
+    data_path = join_path(root_path, 'data_256')
     splits_path = join_path(processed_path, 'dataset_splits')
     train_split = join_path(splits_path, 'train_data.txt')
 
