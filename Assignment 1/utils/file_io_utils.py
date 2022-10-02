@@ -3,34 +3,6 @@ import json
 
 
 
-def write_int_array_to_file(array, file_path):
-    with open(file_path, 'w') as file:
-        for element in array:
-            file.write(f'{str(element)}\n')
-
-
-def write_string_array_to_file(array, file_path):
-    with open(file_path, 'w') as file:
-        for element in array:
-            file.write(f'{element}\n')
-
-
-def read_file_to_array(file_path):
-    array = []
-    with open(file_path, 'r') as file:
-        for line in file.readlines():
-            array.append(line.strip())
-    return array
-
-
-def read_file_to_int_array(file_path):
-    array = []
-    with open(file_path, 'r') as file:
-        for line in file.readlines():
-            array.append(int(line.strip()))
-    return array
-
-
 def write_json_string(json_string, file_path):
     with open(file_path, 'w') as file:
         json.dump(json.loads(json_string), file, indent=4)

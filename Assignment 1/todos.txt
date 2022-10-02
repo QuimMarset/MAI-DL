@@ -1,2 +1,5 @@
 
+
+TODO: Calcular quin és el random performance
 TODO: Provar SGDW (SGD amb weight decay + moment)
+TODO: Provar altres relus

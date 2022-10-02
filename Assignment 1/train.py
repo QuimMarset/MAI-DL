@@ -1,11 +1,12 @@
 from tensorflow import keras
 import tensorflow_addons as tfa
 from utils.paths_utils import *
-from utils.file_io_utils import *
+from utils.csv_utils import create_train_val_dataframes, get_classes_names
 from utils.plot_utils import *
 from utils.argument_parser import parse_input_arguments
-from data_generator import DataGenerator, DataGeneratorAugmentation
-from models.cnn import CNNWrapper
+from utils.file_io_utils import write_dict_to_json, load_mean_std_from_npy
+from image_data_generator import create_train_generator, create_val_generator
+from models import cnn, cnn_residuals
 
 
 
@@ -33,8 +34,13 @@ def create_model(args, input_shape, num_classes):
     use_max_pooling = args.pooling_type == 'Max'
     kernel_sizes = args.kernel_sizes * len(args.conv_filters) if len(args.kernel_sizes) == 1 else args.kernel_sizes
 
-    return CNNWrapper(input_shape, kernel_sizes, args.conv_filters, args.padding, args.dense_units, args.batch_norm,
-        args.dropout, use_max_pooling, args.activation, num_classes)
+    if args.model == 'CNN':
+        return cnn.CNNWrapper(input_shape, kernel_sizes, args.conv_filters, 
+            args.padding, args.dense_units, args.batch_norm, args.dropout, use_max_pooling, 
+            args.activation, num_classes)
+    else:
+        return cnn_residuals.CNNResidualsWrapper(input_shape, kernel_sizes, args.conv_filters, 
+            args.dense_units, args.batch_norm, args.dropout, use_max_pooling, args.activation, num_classes)
 
 
 def define_callbacks(parsed_args):
@@ -58,9 +64,10 @@ def train(experiment_path, parsed_args, train_gen, val_gen, image_shape, num_cla
 
     callbacks = define_callbacks(parsed_args)
     
-    model_wrapper.model.compile(optimizer, run_eagerly=True, loss="sparse_categorical_crossentropy", metrics=["accuracy"])
+    loss_function = keras.losses.CategoricalCrossentropy(label_smoothing=parsed_args.label_smoothing)
+    model_wrapper.model.compile(optimizer, run_eagerly=True, loss=loss_function, metrics=["accuracy"])
     history = model_wrapper.model.fit(train_gen, epochs=parsed_args.epochs, validation_data=val_gen, workers=6, callbacks=callbacks)
-    
+
     model_wrapper.save_model_weights(experiment_path)
     # Save training metrics and experiment hyperparameters
     training_metrics = history.history
@@ -74,30 +81,21 @@ def train(experiment_path, parsed_args, train_gen, val_gen, image_shape, num_cla
 
 if __name__ == '__main__':
 
-    root_path = './'
-    dataset_path = join_path(root_path, 'data_256')
-    processed_data_path = join_path(root_path, 'processed_dataset')
-    splits_path = join_path(processed_data_path, 'dataset_splits')
+    parsed_args = parse_input_arguments()
     
+    root_path = './'
+    data_path = join_path(root_path, 'data_256')
+    data_csv_path = join_path(root_path, 'MAMe_metadata', 'MAMe_dataset.csv')
+    data_statistics_path = join_path(root_path, 'data_statistics')
     experiments_path = create_folder(root_path, 'experiments')
     new_experiment_path = create_new_experiment_folder(experiments_path)
 
-    parsed_args = parse_input_arguments()
-
-    train_names = read_file_to_array(join_path(splits_path, 'train_data.txt'))
-    train_labels = read_file_to_int_array(join_path(splits_path, 'train_labels.txt'))
-    val_names = read_file_to_array(join_path(splits_path, 'val_data.txt'))
-    val_labels = read_file_to_int_array(join_path(splits_path, 'val_labels.txt'))
-
-    train_mean_std = load_mean_std_from_npy(join_path(processed_data_path, 'train_mean_std.npy'))
-    num_classes = len(read_file_to_array(join_path(splits_path, 'class_names.txt')))
+    train_mean_std = load_mean_std_from_npy(join_path(data_statistics_path, 'train_mean_std.npy'))
+    classes_names = get_classes_names(join_path(root_path, 'MAMe_metadata', 'MAMe_labels.csv'))
     image_shape = (256, 256, 3)
+    
+    train_df, val_df = create_train_val_dataframes(data_csv_path, data_path)
+    train_gen = create_train_generator(train_df, image_shape[:-1], parsed_args.batch_size, parsed_args.augmentation)
+    val_gen = create_val_generator(val_df, image_shape[:-1], parsed_args.batch_size)
 
-    generator_class = DataGenerator
-    if parsed_args.augmentation:
-        generator_class = DataGeneratorAugmentation
-
-    train_gen = generator_class(parsed_args.batch_size, dataset_path, train_names, image_shape, train_labels, num_classes, train_mean_std)
-    val_gen = DataGenerator(parsed_args.batch_size, dataset_path, val_names, image_shape, val_labels, num_classes, train_mean_std)
-
-    train(new_experiment_path, parsed_args, train_gen, val_gen, image_shape, num_classes)
+    train(new_experiment_path, parsed_args, train_gen, val_gen, image_shape, len(classes_names))

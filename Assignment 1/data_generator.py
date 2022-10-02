@@ -11,10 +11,12 @@ class DataGenerator(keras.utils.Sequence):
         self.images_path = images_path
         self.batch_size = batch_size
         self.image_shape = image_shape
-        self.file_names = file_names
-        self.labels = labels
-        self.num_classes = num_classes
         self.mean_std = mean_std
+
+        self.file_names = file_names
+        self.labels = np.zeros((len(labels), num_classes))
+        self.labels[range(len(labels)), labels] = 1
+        
         self.num_batches = len(self.file_names) // self.batch_size
         self.rng_data = np.random.default_rng(seed)
         self.rng_labels = np.random.default_rng(seed)
@@ -50,7 +52,7 @@ class DataGenerator(keras.utils.Sequence):
 
     def load_batch(self, batch_index):
         batch_file_names = self.file_names[batch_index : batch_index + self.batch_size]
-        batch_labels = np.array(self.labels[batch_index : batch_index + self.batch_size])
+        batch_labels = self.labels[batch_index : batch_index + self.batch_size]
         batch_images = self.load_batch_images(batch_file_names)
         return batch_images, batch_labels
 
@@ -67,13 +69,14 @@ class DataGeneratorAugmentation(DataGenerator):
             return batch
         
         self.augmentation_model = keras.Sequential([
-            keras.layers.RandomRotation(0.2, fill_mode='nearest'),
-            keras.layers.RandomFlip('horizontal_and_vertical'),
+            keras.layers.RandomRotation(0.2, fill_mode='nearest', seed=seed),
+            keras.layers.RandomFlip('horizontal_and_vertical', seed=seed),
             #keras.layers.RandomZoom(0.1, 0.1),
-            keras.layers.RandomContrast(0.3),
+            keras.layers.RandomContrast(0.3, seed=seed),
             keras.layers.Lambda(random_central_crop),
             keras.layers.Lambda(lambda batch : (batch - self.mean_std[0]) / self.mean_std[1])
         ])
+        self.augmentation_model.trainable = False
 
     def load_batch_images(self, batch_file_names):
         batch_images = np.zeros((self.batch_size, *self.image_shape))

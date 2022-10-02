@@ -4,8 +4,7 @@ from utils.paths_utils import join_path
 
 
 
-def load_image(images_path, image_name):
-    image_path = join_path(images_path, image_name)
+def load_image(image_path):
     image = cv2.imread(image_path)
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
     return image

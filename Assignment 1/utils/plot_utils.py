@@ -8,7 +8,7 @@ from utils.image_utils import load_image
 
 def plot_learning_curve(train_values, val_values, metric_name, save_path):
     sns.set(style="whitegrid")
-    plt.figure(figsize=(20, 6))
+    plt.figure(figsize=(12, 6))
 
     num_epochs = len(train_values)
     epochs_range = range(1, num_epochs+1)
@@ -16,7 +16,6 @@ def plot_learning_curve(train_values, val_values, metric_name, save_path):
     plt.plot(epochs_range, train_values, label=f'Train {metric_name}')
     plt.plot(epochs_range, val_values, label=f'Val {metric_name}')
     
-    plt.xticks(epochs_range)
     plt.xlabel('Epoch')
     plt.ylabel(metric_name)
     plt.legend()
@@ -26,20 +25,22 @@ def plot_learning_curve(train_values, val_values, metric_name, save_path):
     plt.close()
 
 
-def compute_class_frequencies(labels, num_classes):
+def compute_class_frequencies(labels, class_index_dict, num_classes):
     frequencies = np.zeros(num_classes, dtype=float)
     for label in labels:
-        frequencies[label] += 1
+        index = class_index_dict[label]
+        frequencies[index] += 1
     frequencies /= np.sum(frequencies)
     return frequencies
 
 
-def plot_classes_histogram(labels, class_names, save_path, partition='whole', log_scale=False):
+def plot_classes_histogram(labels, class_names, class_index_dict, save_path, partition='whole'):
     sns.set(style="whitegrid")
     num_classes = len(class_names)
-    frequencies = compute_class_frequencies(labels, num_classes)
+    frequencies = compute_class_frequencies(labels, class_index_dict, num_classes)
+    
     plt.figure(figsize=(8, 6))
-    plt.bar(range(num_classes), frequencies, label='Class proportion', log=log_scale)
+    plt.bar(range(num_classes), frequencies, label='Class proportion')
     plt.xticks([i for i in range(num_classes)], class_names, rotation='vertical')
     plt.legend()
     plt.title(f'Classes proportion in the {partition} dataset')
@@ -48,17 +49,16 @@ def plot_classes_histogram(labels, class_names, save_path, partition='whole', lo
     plt.close()
 
 
-def plot_random_25_images(images_path, image_names, labels, class_names):
+def plot_random_25_images(images_paths, labels):
     plt.figure(figsize=(10, 10))
 
-    indices_range = range(len(image_names))
+    indices_range = range(len(images_paths))
     selected_indices = np.random.choice(indices_range, 25, replace=False)
     
     for i, selected_index in enumerate(selected_indices):
         plt.subplot(5, 5, i+1)
-        plt.imshow(load_image(images_path, image_names[selected_index]))
-        label_num = labels[selected_index]
-        plt.title(class_names[label_num], fontsize=10)
+        plt.imshow(load_image(images_paths[selected_index]))
+        plt.title(labels[selected_index], fontsize=10)
         plt.axis('off')
 
     plt.tight_layout()     

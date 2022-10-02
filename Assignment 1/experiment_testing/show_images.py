@@ -1,17 +1,21 @@
+import sys
+sys.path.append('./')
+
 from utils.paths_utils import *
 from utils.plot_utils import plot_random_25_images
-from utils.file_io_utils import read_file_to_array, read_file_to_int_array
+from utils.csv_utils import create_train_val_dataframes, get_classes_names
 
 
 
 if __name__ == '__main__':
 
     root_path = './'
-    dataset_path = join_path(root_path, 'data_256')
-    splits_path = join_path(root_path, 'processed_dataset', 'dataset_splits')
+    data_path = join_path(root_path, 'data_256')
+    data_csv_path = join_path(root_path, 'MAMe_metadata', 'MAMe_dataset.csv')
+    data_statistics_path = create_folder(root_path, 'data_statistics')
+    
+    train_df, _ = create_train_val_dataframes(data_csv_path, data_path)
+    train_paths = train_df['filename'].to_numpy()
+    train_labels = train_df['class'].to_numpy()
 
-    train_names = read_file_to_array(join_path(splits_path, 'train_data.txt'))
-    train_labels = read_file_to_int_array(join_path(splits_path, 'train_labels.txt'))
-    class_names = read_file_to_array(join_path(splits_path, 'class_names.txt'))
-
-    plot_random_25_images(dataset_path, train_names, train_labels, class_names)
+    plot_random_25_images(train_paths, train_labels)
