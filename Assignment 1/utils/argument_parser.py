@@ -22,7 +22,7 @@ def parse_input_arguments():
     parser.add_argument('--dense_units', type=int, nargs='+', help='Number of units in each dense layer', default=[128])
     parser.add_argument('--dropout', type=float, help='Dropout percentage to use after each dense layer', default=0)
     parser.add_argument('--batch_norm', action='store_true', help='Apply Batch Normalization after every Dense or Convolutional layer', default=False)
-    parser.add_argument('--activation', help='Activation function to use in hidden layers', default='relu')
+    parser.add_argument('--activation', help='Activation function to use in hidden layers', choices=['relu', 'leaky_relu', 'elu', 'gelu'], default='relu')
 
     # Data parameters
     parser.add_argument('--augmentation', action='store_true', help='Apply data augmentation', default=False)
@@ -34,6 +34,11 @@ def parse_input_arguments():
     parser.add_argument('--patience', type=int, help='Patience value to use in early stopping', default=10)
     parser.add_argument('--min_delta', type=float, help='Minimum change in the val loss to consider it an improvement', default=1e-4)
     parser.add_argument('--label_smoothing', type=float, help='Weight divided between the non-target labels', default=0)
+
+    # Seed parameters
+    parser.add_argument('--seed', action='store_true', help='Specify seeds to reproduce results', default=False)
+    parser.add_argument('--global_seed', type=int, help='Global seed used by Tensorflow', default=0)
+    parser.add_argument('--operational_seed', type=int, help='Operational seed used by Tensorflow', default=0)
 
     parsed_args = parser.parse_args()
     return parsed_args

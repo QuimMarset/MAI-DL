@@ -29,26 +29,27 @@ def create_image_data_generator_augmentation(mean_std):
     )
 
 
-def flow_generator(generator, dataframe, image_shape, batch_size, shuffle):
+def flow_generator(generator, dataframe, image_shape, batch_size, seed, shuffle):
     return generator.flow_from_dataframe(
         dataframe,
         target_size=image_shape,
         batch_size=batch_size,
         class_mode = "categorical",
         shuffle=shuffle,
-        validate_filenames=False
+        validate_filenames=False,
+        seed=seed
     )
 
 
-def create_train_generator(dataframe, image_shape, batch_size, augmentation=True, mean_std=None):
+def create_train_generator(dataframe, image_shape, batch_size, augmentation, mean_std, seed):
     if augmentation:
         generator = create_image_data_generator_augmentation(mean_std)
     else:
         generator = create_image_data_generator(mean_std)
 
-    return flow_generator(generator, dataframe, image_shape, batch_size, shuffle=True)
+    return flow_generator(generator, dataframe, image_shape, batch_size, seed, shuffle=True)
 
 
-def create_val_generator(dataframe, image_shape, batch_size, mean_std=None):
+def create_val_generator(dataframe, image_shape, batch_size, mean_std, seed):
     generator = create_image_data_generator(mean_std)
-    return flow_generator(generator, dataframe, image_shape, batch_size, shuffle=False)
+    return flow_generator(generator, dataframe, image_shape, batch_size, seed, shuffle=False)

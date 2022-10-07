@@ -2,8 +2,9 @@
 MAME*/
 data*/
 __pycache__
-experiments/
+experiments*/
 processed*/
 results/
 *.npy
 *.png
+*.zip

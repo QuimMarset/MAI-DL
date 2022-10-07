@@ -25,6 +25,29 @@ def plot_learning_curve(train_values, val_values, metric_name, save_path):
     plt.close()
 
 
+def plot_learning_curves(train_loss, val_loss, train_acc, val_acc, save_path):
+    sns.set(style="whitegrid")
+    fig, ax = plt.subplots(figsize=(12, 6))
+
+    ax.plot(train_loss, 'r', label='Train loss')
+    ax.plot(val_loss, 'b', label='Val loss')
+    ax.set_ylabel('Loss')
+    
+    ax_2 = ax.twinx()
+    ax_2.plot(train_acc, 'g', label='Train accuracy')
+    ax_2.plot(val_acc, 'm', label='Val accuracy')
+    ax_2.set_ylabel('Accuracy')
+
+    ax.set_xlabel('Epoch')
+    h1, l1 = ax.get_legend_handles_labels()
+    h2, l2 = ax_2.get_legend_handles_labels()
+    ax.legend(h1+h2, l1+l2, bbox_to_anchor=(1.08, 0.5), loc="center left", fontsize=9)
+    plt.title(f'Training and validation learning curves')
+    plt.tight_layout()
+    plt.savefig(join_path(save_path, 'learning_curves.png'), dpi=100)
+    plt.close()
+
+
 def compute_class_frequencies(labels, class_index_dict, num_classes):
     frequencies = np.zeros(num_classes, dtype=float)
     for label in labels:

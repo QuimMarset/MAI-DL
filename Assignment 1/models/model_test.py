@@ -9,33 +9,21 @@ class ModelTesting(keras.Model):
     def __init__(self):
         super().__init__()
 
-        self.conv_1 = keras.layers.Conv2D(16, 3, padding='same', activation='relu', kernel_initializer=keras.initializers.HeUniform(seed=1412))
-        self.conv_2 = keras.layers.Conv2D(32, 3, padding='same', activation='relu', kernel_initializer=keras.initializers.HeUniform(seed=1412))
-        self.conv_3 = keras.layers.Conv2D(64, 3, padding='same', activation='relu', kernel_initializer=keras.initializers.HeUniform(seed=1412))
-        self.conv_4 = keras.layers.Conv2D(96, 3, padding='same', activation='relu', kernel_initializer=keras.initializers.HeUniform(seed=1412))
-        self.dense_1 = keras.layers.Dense(16, activation='relu', kernel_initializer=keras.initializers.HeUniform(seed=1412))
-        self.dense_2 = keras.layers.Dense(32, activation='relu', kernel_initializer=keras.initializers.HeUniform(seed=1412))
-        self.dense_3 = keras.layers.Dense(64, activation='relu', kernel_initializer=keras.initializers.HeUniform(seed=1412))
+        initializer = kernel_initializer=keras.initializers.HeUniform(seed=1412)
+
+        self.conv_1 = keras.layers.Conv2D(16, 3, padding='same', kernel_initializer=initializer)
+        self.conv_2 = keras.layers.Conv2D(32, 3, padding='same', kernel_initializer=initializer)
+        self.conv_3 = keras.layers.Conv2D(64, 3, padding='same', kernel_initializer=initializer)
+        self.conv_4 = keras.layers.Conv2D(96, 3, padding='same', kernel_initializer=initializer)
+        self.dense_1 = keras.layers.Dense(16, kernel_initializer=initializer)
+        self.dense_2 = keras.layers.Dense(32, kernel_initializer=initializer)
+        self.dense_3 = keras.layers.Dense(64, kernel_initializer=initializer)
         self.pool_1 = keras.layers.MaxPool2D()
         self.pool_2 = keras.layers.MaxPool2D()
         self.pool_3 = keras.layers.MaxPool2D()
         self.pool_4 = keras.layers.MaxPool2D()
 
-        self.dense_4 = keras.layers.Dense(29, activation='softmax', kernel_initializer=keras.initializers.GlorotUniform(seed=1412))
-
-        #self.loss_metric = keras.metrics.Mean(name='loss')
-        #self.accuracy_metric = keras.metrics.CategoricalAccuracy(name='accuracy')
-
-
-    #@property
-    #def metrics(self):
-    #    return [self.loss_metric, self.accuracy_metric]
-
-
-    def calculate_loss(self, target, pred):
-        loss_function = keras.losses.SparseCategoricalCrossentropy()
-        loss = loss_function(target, pred)
-        return loss
+        self.dense_4 = keras.layers.Dense(29, activation='softmax', kernel_initializer=keras.initializers.GlorotNormal(seed=1412))
 
 
     def train_step(self, batch_data):
@@ -78,22 +66,29 @@ class ModelTesting(keras.Model):
 
     def call(self, images):
         x = self.conv_1(images)
+        x = keras.layers.Activation('relu')(x)
         x = self.pool_1(x)
         
         x = self.conv_2(x)
+        x = keras.layers.Activation('relu')(x)
         x = self.pool_2(x)
         
         x = self.conv_3(x)
+        x = keras.layers.Activation('relu')(x)
         x = self.pool_3(x)
 
         x = self.conv_4(x)
+        x = keras.layers.Activation('relu')(x)
         x = self.pool_4(x)
         
         x = keras.layers.Flatten()(x)
         
         x = self.dense_1(x)
+        x = keras.layers.Activation('relu')(x)
         x = self.dense_2(x)
+        x = keras.layers.Activation('relu')(x)
         x = self.dense_3(x)
+        x = keras.layers.Activation('relu')(x)
 
         x = self.dense_4(x)
 

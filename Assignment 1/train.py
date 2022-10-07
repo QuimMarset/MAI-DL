@@ -1,5 +1,6 @@
 from tensorflow import keras
 import tensorflow_addons as tfa
+import random
 from utils.paths_utils import *
 from utils.csv_utils import create_train_val_dataframes, get_classes_names
 from utils.plot_utils import *
@@ -8,6 +9,11 @@ from utils.file_io_utils import write_dict_to_json, load_mean_std_from_npy
 from image_data_generator import create_train_generator, create_val_generator
 from models import cnn, cnn_residuals
 
+
+def generate_tf_random_seeds(args):
+    global_seed = args.global_seed if args.seed else random.randint(0, 9999)
+    operational_seed = args.operational_seed if args.seed else random.randint(0, 9999)
+    return global_seed, operational_seed
 
 
 def define_learning_rate(args, epoch_steps):
@@ -30,17 +36,18 @@ def create_optimizer(args, epoch_steps):
             return keras.optimizers.Adam(learning_rate)
 
 
-def create_model(args, input_shape, num_classes):
+def create_model(args, input_shape, num_classes, global_seed, operational_seed):
     use_max_pooling = args.pooling_type == 'Max'
     kernel_sizes = args.kernel_sizes * len(args.conv_filters) if len(args.kernel_sizes) == 1 else args.kernel_sizes
 
     if args.model == 'CNN':
         return cnn.CNNWrapper(input_shape, kernel_sizes, args.conv_filters, 
             args.padding, args.dense_units, args.batch_norm, args.dropout, use_max_pooling, 
-            args.activation, num_classes)
+            args.activation, num_classes, global_seed, operational_seed)
     else:
         return cnn_residuals.CNNResidualsWrapper(input_shape, kernel_sizes, args.conv_filters, 
-            args.dense_units, args.batch_norm, args.dropout, use_max_pooling, args.activation, num_classes)
+            args.dense_units, args.batch_norm, args.dropout, use_max_pooling, args.activation, 
+            num_classes, global_seed, operational_seed)
 
 
 def define_callbacks(parsed_args):
@@ -55,27 +62,32 @@ def define_callbacks(parsed_args):
     return callbacks
 
 
-def train(experiment_path, parsed_args, train_gen, val_gen, image_shape, num_classes):
+def train(experiment_path, parsed_args, train_gen, val_gen, image_shape, num_classes, global_seed, operational_seed):
     optimizer = create_optimizer(parsed_args, len(train_gen))
     
-    model_wrapper = create_model(parsed_args, image_shape, num_classes)
+    model_wrapper = create_model(parsed_args, image_shape, num_classes, global_seed, operational_seed)
     model_wrapper.save_architecture(experiment_path)
     model_wrapper.save_summary(experiment_path)
 
     callbacks = define_callbacks(parsed_args)
-    
+
     loss_function = keras.losses.CategoricalCrossentropy(label_smoothing=parsed_args.label_smoothing)
     model_wrapper.model.compile(optimizer, run_eagerly=True, loss=loss_function, metrics=["accuracy"])
     history = model_wrapper.model.fit(train_gen, epochs=parsed_args.epochs, validation_data=val_gen, workers=6, callbacks=callbacks)
 
     model_wrapper.save_model_weights(experiment_path)
+    
     # Save training metrics and experiment hyperparameters
     training_metrics = history.history
     write_dict_to_json(training_metrics, join_path(experiment_path, 'train_metrics.json'))
-    write_dict_to_json(vars(parsed_args), join_path(experiment_path, 'hyperparameters.json'))
+    
+    hyperparameters = vars(parsed_args)
+    hyperparameters['global_seed'] = global_seed
+    hyperparameters['operational_seed'] = operational_seed
+    write_dict_to_json(hyperparameters, join_path(experiment_path, 'hyperparameters.json'))
 
-    plot_learning_curve(training_metrics['loss'], training_metrics['val_loss'], 'loss', experiment_path)
-    plot_learning_curve(training_metrics['accuracy'], training_metrics['val_accuracy'], 'accuracy', experiment_path)
+    plot_learning_curves(training_metrics['loss'], training_metrics['val_loss'], 
+        training_metrics['accuracy'], training_metrics['val_accuracy'], experiment_path)
 
 
 
@@ -94,8 +106,12 @@ if __name__ == '__main__':
     classes_names = get_classes_names(join_path(root_path, 'MAMe_metadata', 'MAMe_labels.csv'))
     image_shape = (256, 256, 3)
     
-    train_df, val_df = create_train_val_dataframes(data_csv_path, data_path)
-    train_gen = create_train_generator(train_df, image_shape[:-1], parsed_args.batch_size, parsed_args.augmentation)
-    val_gen = create_val_generator(val_df, image_shape[:-1], parsed_args.batch_size)
+    global_seed, operational_seed = generate_tf_random_seeds(parsed_args)
 
-    train(new_experiment_path, parsed_args, train_gen, val_gen, image_shape, len(classes_names))
+    mean_std = None #TODO: Add option to use instead of only 1/255
+    
+    train_df, val_df = create_train_val_dataframes(data_csv_path, data_path)
+    train_gen = create_train_generator(train_df, image_shape[:-1], parsed_args.batch_size, parsed_args.augmentation, mean_std, operational_seed)
+    val_gen = create_val_generator(val_df, image_shape[:-1], parsed_args.batch_size, mean_std, operational_seed)
+
+    train(new_experiment_path, parsed_args, train_gen, val_gen, image_shape, len(classes_names), global_seed, operational_seed)
