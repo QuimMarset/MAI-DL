@@ -4,6 +4,7 @@ import tensorflow as tf
 
 def set_tf_global_seed(global_seed):
     tf.random.set_seed(global_seed)
+    keras.utils.set_random_seed(global_seed)
 
 
 def create_kernel_initializer(activation, operational_seed):

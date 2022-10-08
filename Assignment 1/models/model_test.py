@@ -2,6 +2,17 @@ import tensorflow as tf
 from tensorflow import keras
 
 
+import matplotlib.pyplot as plt
+def plot_images(images):
+    plt.figure(figsize=(10, 10))
+    
+    for i, image in enumerate(images):
+        plt.subplot(5, 7, i+1)
+        plt.imshow(image)
+        plt.axis('off')
+
+    plt.tight_layout()     
+    plt.show()
 
 
 class ModelTesting(keras.Model):
@@ -9,7 +20,7 @@ class ModelTesting(keras.Model):
     def __init__(self):
         super().__init__()
 
-        initializer = kernel_initializer=keras.initializers.HeUniform(seed=1412)
+        initializer = keras.initializers.HeUniform(seed=1412)
 
         self.conv_1 = keras.layers.Conv2D(16, 3, padding='same', kernel_initializer=initializer)
         self.conv_2 = keras.layers.Conv2D(32, 3, padding='same', kernel_initializer=initializer)
@@ -28,40 +39,26 @@ class ModelTesting(keras.Model):
 
     def train_step(self, batch_data):
         images, target = batch_data
-        #target = tf.one_hot(target, 29)
 
         with tf.GradientTape() as tape:
             pred = self(images, training=True)
-            #loss = self.calculate_loss(target, pred)
             loss = self.compiled_loss(target, pred, regularization_losses=self.losses)
 
         gradients = tape.gradient(loss, self.trainable_variables)
         self.optimizer.apply_gradients(zip(gradients, self.trainable_variables))
 
         self.compiled_metrics.update_state(target, pred)
-        #self.loss_metric.update_state(loss)
-        #one_hot_targets = tf.one_hot(target, 29)
-        #self.accuracy_metric.update_state(one_hot_targets, pred)
-
         return {m.name: m.result() for m in self.metrics}
-        #return {'loss' : self.loss_metric.result(), 'accuracy' : self.accuracy_metric.result()}
 
     
     def test_step(self, batch_data):
         input, target = batch_data
-        #target = tf.one_hot(target, 29)
 
         pred = self(input, training=False)
         loss = self.compiled_loss(target, pred, regularization_losses=self.losses)
-        #loss = self.calculate_loss(target, pred)
         
         self.compiled_metrics.update_state(target, pred)
-        #self.loss_metric.update_state(loss)
-        #one_hot_targets = tf.one_hot(target, 29)
-        #self.accuracy_metric.update_state(one_hot_targets, pred)
-
         return {m.name: m.result() for m in self.metrics}
-        #return {'loss' : self.loss_metric.result(), 'accuracy' : self.accuracy_metric.result()}
 
 
     def call(self, images):

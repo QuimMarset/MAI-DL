@@ -1,3 +1,4 @@
+from sklearn.utils import shuffle
 from tensorflow import keras
 import tensorflow_addons as tfa
 import random
@@ -70,10 +71,10 @@ def train(experiment_path, parsed_args, train_gen, val_gen, image_shape, num_cla
     model_wrapper.save_summary(experiment_path)
 
     callbacks = define_callbacks(parsed_args)
-
+    
     loss_function = keras.losses.CategoricalCrossentropy(label_smoothing=parsed_args.label_smoothing)
     model_wrapper.model.compile(optimizer, run_eagerly=True, loss=loss_function, metrics=["accuracy"])
-    history = model_wrapper.model.fit(train_gen, epochs=parsed_args.epochs, validation_data=val_gen, workers=6, callbacks=callbacks)
+    history = model_wrapper.model.fit(train_gen, epochs=parsed_args.epochs, validation_data=val_gen, workers=6, callbacks=callbacks, shuffle=False)
 
     model_wrapper.save_model_weights(experiment_path)
     
@@ -92,6 +93,7 @@ def train(experiment_path, parsed_args, train_gen, val_gen, image_shape, num_cla
 
 
 if __name__ == '__main__':
+    os.environ['TF_DETERMINISTIC_OPS']  = '1'
 
     parsed_args = parse_input_arguments()
     
@@ -112,6 +114,6 @@ if __name__ == '__main__':
     
     train_df, val_df = create_train_val_dataframes(data_csv_path, data_path)
     train_gen = create_train_generator(train_df, image_shape[:-1], parsed_args.batch_size, parsed_args.augmentation, mean_std, operational_seed)
-    val_gen = create_val_generator(val_df, image_shape[:-1], parsed_args.batch_size, mean_std, operational_seed)
+    val_gen = create_val_generator(val_df, image_shape[:-1], parsed_args.batch_size, mean_std)
 
     train(new_experiment_path, parsed_args, train_gen, val_gen, image_shape, len(classes_names), global_seed, operational_seed)

@@ -27,15 +27,15 @@ def plot_learning_curve(train_values, val_values, metric_name, save_path):
 
 def plot_learning_curves(train_loss, val_loss, train_acc, val_acc, save_path):
     sns.set(style="whitegrid")
-    fig, ax = plt.subplots(figsize=(12, 6))
+    _, ax = plt.subplots(figsize=(12, 6))
 
-    ax.plot(train_loss, 'r', label='Train loss')
-    ax.plot(val_loss, 'b', label='Val loss')
+    ax.plot(train_loss, 'g-.', label='Train loss')
+    ax.plot(val_loss, 'r-.', label='Val loss')
     ax.set_ylabel('Loss')
     
     ax_2 = ax.twinx()
-    ax_2.plot(train_acc, 'g', label='Train accuracy')
-    ax_2.plot(val_acc, 'm', label='Val accuracy')
+    ax_2.plot(train_acc, 'c', label='Train accuracy')
+    ax_2.plot(val_acc, color='orange', label='Val accuracy')
     ax_2.set_ylabel('Accuracy')
 
     ax.set_xlabel('Epoch')
