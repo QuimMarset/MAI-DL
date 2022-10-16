@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
+import pandas as pd
 from utils.paths_utils import join_path
 from utils.image_utils import load_image
 
@@ -86,3 +87,13 @@ def plot_random_25_images(images_paths, labels):
 
     plt.tight_layout()     
     plt.show()
+
+
+def plot_confusion_matrix(values, class_names, save_path):
+    confusion_matrix_df = pd.DataFrame(values, index=class_names, columns=class_names)
+    plt.figure(figsize=(15, 15))
+    sns.set(font_scale=1.4)
+    sns.heatmap(confusion_matrix_df, annot=True, annot_kws={"size": 16}, fmt='g')
+    plt.tight_layout()
+    plt.savefig(join_path(save_path, f'test_confusion_matrix.png'), dpi=300)
+    plt.close()

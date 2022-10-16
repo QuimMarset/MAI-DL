@@ -1,4 +1,3 @@
-from sklearn.utils import shuffle
 from tensorflow import keras
 import tensorflow_addons as tfa
 import random
@@ -31,7 +30,6 @@ def create_optimizer(args, epoch_steps):
         return keras.optimizers.SGD(learning_rate)
     else:
         if args.weight_decay > 0:
-            pass
             return tfa.optimizers.AdamW(weight_decay=args.weight_decay, learning_rate=learning_rate)
         else:
             return keras.optimizers.Adam(learning_rate)
@@ -109,8 +107,11 @@ if __name__ == '__main__':
     image_shape = (256, 256, 3)
     
     global_seed, operational_seed = generate_tf_random_seeds(parsed_args)
+    #os.environ['PYTHONHASHSEED'] = '{}'.format(operational_seed)
 
-    mean_std = None #TODO: Add option to use instead of only 1/255
+    mean_std = None
+    if parsed_args.train_normalization:
+        mean_std = train_mean_std
     
     train_df, val_df = create_train_val_dataframes(data_csv_path, data_path)
     train_gen = create_train_generator(train_df, image_shape[:-1], parsed_args.batch_size, parsed_args.augmentation, mean_std, operational_seed)

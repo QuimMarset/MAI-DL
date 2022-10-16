@@ -53,3 +53,7 @@ def create_train_generator(dataframe, image_shape, batch_size, augmentation, mea
 def create_val_generator(dataframe, image_shape, batch_size, mean_std):
     generator = create_image_data_generator(mean_std)
     return flow_generator(generator, dataframe, image_shape, batch_size, seed=None, shuffle=False)
+
+
+def create_test_generator(dataframe, image_shape, batch_size, mean_std):
+    return create_val_generator(dataframe, image_shape, batch_size, mean_std)

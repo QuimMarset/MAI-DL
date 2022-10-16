@@ -29,7 +29,7 @@ class BasicModelWrapper:
 
 
     def load_model_weights(self, load_path):
-        self.model.load_weights(join_path(load_path, 'model_weights'))
+        self.model.load_weights(join_path(load_path, 'model_weights')).expect_partial()
 
 
     def save_model_weights(self, save_path):

@@ -27,6 +27,7 @@ def parse_input_arguments():
     # Data parameters
     parser.add_argument('--augmentation', action='store_true', help='Apply data augmentation', default=False)
     parser.add_argument('--batch_size', type=int, help='Mini-batch size', default=32)
+    parser.add_argument('--train_normalization', action='store_true', help='Use a mean and std computed from the training set to normalize the images')
 
     # Other training parameters
     parser.add_argument('--epochs', type=int, help='Number of epochs', default=50)

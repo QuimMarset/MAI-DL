@@ -1,30 +1,13 @@
-from sklearn.utils import shuffle
-from tensorflow import keras
+from types import SimpleNamespace
 import numpy as np
-# import tensorflow_addons as tfa
-import random
+from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
 from utils.paths_utils import *
-from utils.csv_utils import create_train_val_dataframes, get_classes_names
-from utils.plot_utils import *
-from utils.argument_parser import parse_input_arguments
-from utils.file_io_utils import write_dict_to_json, load_mean_std_from_npy
-from image_data_generator import create_train_generator, create_val_generator
+from utils.csv_utils import create_test_dataframe, get_classes_names
+from utils.plot_utils import plot_confusion_matrix
+from utils.file_io_utils import load_mean_std_from_npy, load_json_to_dict
+from image_data_generator import create_test_generator
 from models import cnn, cnn_residuals
-from keras.preprocessing import image
 
-
-
-def generate_tf_random_seeds(args):
-    global_seed = args.global_seed if args.seed else random.randint(0, 9999)
-    operational_seed = args.operational_seed if args.seed else random.randint(0, 9999)
-    return global_seed, operational_seed
-
-
-def define_learning_rate(args, epoch_steps):
-    if args.lr_decay:
-        return keras.optimizers.schedules.ExponentialDecay(args.lr, args.decay_epochs*epoch_steps, args.decay_rate)
-    else:
-        return args.lr
 
 
 def create_model(args, input_shape, num_classes, global_seed, operational_seed):
@@ -41,39 +24,42 @@ def create_model(args, input_shape, num_classes, global_seed, operational_seed):
             num_classes, global_seed, operational_seed)
 
 
-def preprocess(test_image_path):
-    img = keras.utils.load_img(test_image_path, target_size=(256, 256))
-    img_array = keras.utils.img_to_array(img)
-    img_batch = np.expand_dims(img_array, axis=0)
-    img_norm = img_batch/max(img_batch)
-    return img_norm
-
-def test(parsed_args, weights_path, test_image_path, class_names, image_shape, num_classes, global_seed, operational_seed):
-
-    model_wrapper = create_model(parsed_args, image_shape, num_classes, global_seed, operational_seed)
+def test(parsed_args, weights_path, test_gen, image_shape, classes_name):
+    model_wrapper = create_model(parsed_args, image_shape, len(classes_name), parsed_args.global_seed, parsed_args.operational_seed)
     model_wrapper.load_model_weights(weights_path)
-    test_img = preprocess(test_image_path)
-    prediction = model_wrapper.model.predict(test_img)
-    predicted_index = np.argmax(prediction)
-    print(f'Predicted class: {class_names[predicted_index]}')
-    print(f'Predicted index: {predicted_index}')
-    print(f'All predictions: {prediction}')
+
+    true_labels = test_gen.labels
+    predictions = model_wrapper.model.predict(test_gen)
+    predictions = np.argmax(predictions, axis=1)
+    accuracy = accuracy_score(true_labels, predictions)
+    print(f'\nTest accuracy: {accuracy:.2f}\n')
+    print(classification_report(true_labels, predictions, target_names=classes_name))
+    confusion_matrix_ = confusion_matrix(true_labels, predictions)
+    plot_confusion_matrix(confusion_matrix_, classes_names, weights_path)
 
 
 
 if __name__ == '__main__':
     os.environ['TF_DETERMINISTIC_OPS']  = '1'
-
-    parsed_args = parse_input_arguments()
     
     root_path = './'
     weights_path = join_path(root_path, 'test_model')
-    test_image_path = join_path(root_path, 'data_256', '212740-28575.jpg')
+    data_path = join_path(root_path, 'data_256')
+    data_statistics_path = join_path(root_path, 'data_statistics')
+    data_csv_path = join_path(root_path, 'MAMe_metadata', 'MAMe_dataset.csv')
 
+    parameters = load_json_to_dict(join_path(weights_path, 'hyperparameters.json'))
+    parameters = SimpleNamespace(**parameters)
+
+    train_mean_std = load_mean_std_from_npy(join_path(data_statistics_path, 'train_mean_std.npy'))
     classes_names = get_classes_names(join_path(root_path, 'MAMe_metadata', 'MAMe_labels.csv'))
     image_shape = (256, 256, 3)
     
-    global_seed, operational_seed = generate_tf_random_seeds(parsed_args)
+    mean_std = None
+    if parameters.train_normalization:
+        mean_std = train_mean_std
 
+    test_df = create_test_dataframe(data_csv_path, data_path)
+    test_gen = create_test_generator(test_df, image_shape[:-1], 32, mean_std)
 
-    test(parsed_args, weights_path, test_image_path, classes_names, image_shape, len(classes_names), global_seed, operational_seed)
+    test(parameters, weights_path, test_gen, image_shape, classes_names)
