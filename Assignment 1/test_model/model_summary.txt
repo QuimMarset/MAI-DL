@@ -151,19 +151,21 @@ _________________________________________________________________
                                                                  
  flatten (Flatten)           (None, 8192)              0         
                                                                  
- sequential (Sequential)     (None, 128)               1049088   
+ sequential (Sequential)     (None, 256)               2098176   
 |¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯|
-| dense (Dense)             (None, 128)               1048576   |
+| dense (Dense)             (None, 256)               2097152   |
 |                                                               |
-| batch_normalization_15 (Bat  (None, 128)            512       |
+| batch_normalization_15 (Bat  (None, 256)            1024      |
 | chNormalization)                                              |
 |                                                               |
-| activation_10 (Activation)  (None, 128)             0         |
+| activation_10 (Activation)  (None, 256)             0         |
 ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯
- dense_1 (Dense)             (None, 29)                3741      
+ dropout (Dropout)           (None, 256)               0         
+                                                                 
+ dense_1 (Dense)             (None, 29)                7453      
                                                                  
 =================================================================
-Total params: 1,553,739
-Trainable params: 1,551,455
-Non-trainable params: 2,284
+Total params: 2,606,539
+Trainable params: 2,603,999
+Non-trainable params: 2,540
 _________________________________________________________________

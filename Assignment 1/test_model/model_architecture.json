@@ -64,7 +64,7 @@
                                     1
                                 ],
                                 "groups": 1,
-                                "activation": "relu",
+                                "activation": "gelu",
                                 "use_bias": false,
                                 "kernel_initializer": {
                                     "class_name": "HeUniform",
@@ -147,7 +147,7 @@
                                 "name": "activation",
                                 "trainable": true,
                                 "dtype": "float32",
-                                "activation": "relu"
+                                "activation": "gelu"
                             },
                             "name": "activation",
                             "inbound_nodes": [
@@ -183,7 +183,7 @@
                                     1
                                 ],
                                 "groups": 1,
-                                "activation": "relu",
+                                "activation": "gelu",
                                 "use_bias": false,
                                 "kernel_initializer": {
                                     "class_name": "HeUniform",
@@ -390,7 +390,7 @@
                                 "name": "activation_1",
                                 "trainable": true,
                                 "dtype": "float32",
-                                "activation": "relu"
+                                "activation": "gelu"
                             },
                             "name": "activation_1",
                             "inbound_nodes": [
@@ -505,7 +505,7 @@
                                     1
                                 ],
                                 "groups": 1,
-                                "activation": "relu",
+                                "activation": "gelu",
                                 "use_bias": false,
                                 "kernel_initializer": {
                                     "class_name": "HeUniform",
@@ -588,7 +588,7 @@
                                 "name": "activation_2",
                                 "trainable": true,
                                 "dtype": "float32",
-                                "activation": "relu"
+                                "activation": "gelu"
                             },
                             "name": "activation_2",
                             "inbound_nodes": [
@@ -624,7 +624,7 @@
                                     1
                                 ],
                                 "groups": 1,
-                                "activation": "relu",
+                                "activation": "gelu",
                                 "use_bias": false,
                                 "kernel_initializer": {
                                     "class_name": "HeUniform",
@@ -831,7 +831,7 @@
                                 "name": "activation_3",
                                 "trainable": true,
                                 "dtype": "float32",
-                                "activation": "relu"
+                                "activation": "gelu"
                             },
                             "name": "activation_3",
                             "inbound_nodes": [
@@ -946,7 +946,7 @@
                                     1
                                 ],
                                 "groups": 1,
-                                "activation": "relu",
+                                "activation": "gelu",
                                 "use_bias": false,
                                 "kernel_initializer": {
                                     "class_name": "HeUniform",
@@ -1029,7 +1029,7 @@
                                 "name": "activation_4",
                                 "trainable": true,
                                 "dtype": "float32",
-                                "activation": "relu"
+                                "activation": "gelu"
                             },
                             "name": "activation_4",
                             "inbound_nodes": [
@@ -1065,7 +1065,7 @@
                                     1
                                 ],
                                 "groups": 1,
-                                "activation": "relu",
+                                "activation": "gelu",
                                 "use_bias": false,
                                 "kernel_initializer": {
                                     "class_name": "HeUniform",
@@ -1272,7 +1272,7 @@
                                 "name": "activation_5",
                                 "trainable": true,
                                 "dtype": "float32",
-                                "activation": "relu"
+                                "activation": "gelu"
                             },
                             "name": "activation_5",
                             "inbound_nodes": [
@@ -1387,7 +1387,7 @@
                                     1
                                 ],
                                 "groups": 1,
-                                "activation": "relu",
+                                "activation": "gelu",
                                 "use_bias": false,
                                 "kernel_initializer": {
                                     "class_name": "HeUniform",
@@ -1470,7 +1470,7 @@
                                 "name": "activation_6",
                                 "trainable": true,
                                 "dtype": "float32",
-                                "activation": "relu"
+                                "activation": "gelu"
                             },
                             "name": "activation_6",
                             "inbound_nodes": [
@@ -1506,7 +1506,7 @@
                                     1
                                 ],
                                 "groups": 1,
-                                "activation": "relu",
+                                "activation": "gelu",
                                 "use_bias": false,
                                 "kernel_initializer": {
                                     "class_name": "HeUniform",
@@ -1713,7 +1713,7 @@
                                 "name": "activation_7",
                                 "trainable": true,
                                 "dtype": "float32",
-                                "activation": "relu"
+                                "activation": "gelu"
                             },
                             "name": "activation_7",
                             "inbound_nodes": [
@@ -1828,7 +1828,7 @@
                                     1
                                 ],
                                 "groups": 1,
-                                "activation": "relu",
+                                "activation": "gelu",
                                 "use_bias": false,
                                 "kernel_initializer": {
                                     "class_name": "HeUniform",
@@ -1911,7 +1911,7 @@
                                 "name": "activation_8",
                                 "trainable": true,
                                 "dtype": "float32",
-                                "activation": "relu"
+                                "activation": "gelu"
                             },
                             "name": "activation_8",
                             "inbound_nodes": [
@@ -1947,7 +1947,7 @@
                                     1
                                 ],
                                 "groups": 1,
-                                "activation": "relu",
+                                "activation": "gelu",
                                 "use_bias": false,
                                 "kernel_initializer": {
                                     "class_name": "HeUniform",
@@ -2154,7 +2154,7 @@
                                 "name": "activation_9",
                                 "trainable": true,
                                 "dtype": "float32",
-                                "activation": "relu"
+                                "activation": "gelu"
                             },
                             "name": "activation_9",
                             "inbound_nodes": [
@@ -2269,7 +2269,7 @@
                                 "name": "dense",
                                 "trainable": true,
                                 "dtype": "float32",
-                                "units": 128,
+                                "units": 256,
                                 "activation": "linear",
                                 "use_bias": false,
                                 "kernel_initializer": {
@@ -2331,7 +2331,7 @@
                                 "name": "activation_10",
                                 "trainable": true,
                                 "dtype": "float32",
-                                "activation": "relu"
+                                "activation": "gelu"
                             }
                         }
                     ]
@@ -2342,6 +2342,28 @@
                         [
                             "flatten",
                             0,
+                            0,
+                            {}
+                        ]
+                    ]
+                ]
+            },
+            {
+                "class_name": "Dropout",
+                "config": {
+                    "name": "dropout",
+                    "trainable": true,
+                    "dtype": "float32",
+                    "rate": 0.15,
+                    "noise_shape": null,
+                    "seed": 42
+                },
+                "name": "dropout",
+                "inbound_nodes": [
+                    [
+                        [
+                            "sequential",
+                            1,
                             0,
                             {}
                         ]
@@ -2377,8 +2399,8 @@
                 "inbound_nodes": [
                     [
                         [
-                            "sequential",
-                            1,
+                            "dropout",
+                            0,
                             0,
                             {}
                         ]
