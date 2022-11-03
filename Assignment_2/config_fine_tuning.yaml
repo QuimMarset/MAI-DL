@@ -1,0 +1,15 @@
+name : 'vgg16'
+num_to_freeze: 40
+dense_list: [128]
+batch_norm: True
+dropout: 0
+lr: 0.0005
+lr_decay: False
+batch_size: 32
+activation: 'relu'
+augmentation: False
+patience: 15
+epochs: 1
+seed: 42
+normalization: False
+label_smoothing: 0
