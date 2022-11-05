@@ -2,7 +2,7 @@ import numpy as np
 import tensorflow as tf
 from tensorflow import keras
 from contextlib import redirect_stdout
-from models.pre_trained_models import create_fine_tuning_base
+from models.pre_trained_models import create_fine_tuning_base_no_FC, create_fine_tuning_base_with_FC
 from utils.file_io_utils import load_json_to_string, write_json_string
 from utils.path_utils import join_path
 
@@ -11,28 +11,14 @@ from utils.path_utils import join_path
 class FineTuningModel:
 
 
-    def __init__(self, pre_trained_name, image_shape, num_to_freeze, dense_list, 
-        batch_norm, dropout, activation, num_classes, seed):
+    def __init__(self, pre_trained_name, image_shape, up_to_freeze, random_layers, 
+        dense_list, batch_norm, dropout, activation, num_classes, seed):
         
         self.seed = seed
         tf.random.set_seed(seed)
         keras.utils.set_random_seed(seed)
-        self.create_model(pre_trained_name, image_shape, num_to_freeze, dense_list, 
-            batch_norm, dropout, activation, num_classes)
-
-
-    def create_model(self, pre_trained_name, image_shape, num_to_freeze, dense_list, 
-        batch_norm, dropout, activation, num_classes):
-
-        fine_tuning_base = create_fine_tuning_base(pre_trained_name, image_shape, num_to_freeze)
-        output_shape = fine_tuning_base.output.shape[1:]
-        classification_head = self.__create_classification_head(output_shape, dense_list, batch_norm, 
-            dropout, activation, num_classes)
-
-        input = fine_tuning_base.input
-        base_output = fine_tuning_base.output
-        classif_output = classification_head(base_output)
-        self.model = keras.Model(input, classif_output)
+        self.__create_model(pre_trained_name, image_shape, up_to_freeze, 
+            random_layers, dense_list, batch_norm, dropout, activation, num_classes)
 
     
     def compile(self, optimizer, label_smoothing):
@@ -67,6 +53,27 @@ class FineTuningModel:
         self.__save_summary(save_path)
         self.__save_architecture(save_path)
         self.__save_weights(save_path)
+
+
+    def __create_model(self, pre_trained_name, image_shape, up_to_freeze, random_layers, 
+        dense_list, batch_norm, dropout, activation, num_classes):
+
+        if len(dense_list) == 0:
+            fine_tuning_base = create_fine_tuning_base_with_FC(pre_trained_name, up_to_freeze, random_layers, self.seed)
+            initializer = keras.initializers.GlorotUniform(seed=self.seed)
+            classification_head = keras.layers.Dense(num_classes, activation='softmax', kernel_initializer=initializer)
+
+        else:
+            fine_tuning_base = create_fine_tuning_base_no_FC(pre_trained_name, image_shape, up_to_freeze, random_layers, self.seed)
+            output_shape = fine_tuning_base.output.shape[1:]
+            classification_head = self.__create_classification_head(output_shape, dense_list, batch_norm, 
+                dropout, activation, num_classes)
+            
+
+        input = fine_tuning_base.input
+        base_output = fine_tuning_base.output
+        classif_output = classification_head(base_output)
+        self.model = keras.Model(input, classif_output)
 
 
     def __create_classification_head(self, input_shape, dense_list, batch_norm, dropout, activation, num_classes):

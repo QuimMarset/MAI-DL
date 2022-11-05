@@ -56,7 +56,7 @@ if __name__ == '__main__':
     seed = config.seed
     augmentation = config.augmentation
 
-    train_gen = create_train_generator(train_df, image_shape_feat_extract[:-1], batch_size, augmentation, mean_std, seed, 'sparse')
-    val_gen = create_val_generator(val_df, image_shape_feat_extract[:-1], batch_size, mean_std, 'sparse')
+    train_gen = create_train_generator(train_df, image_shape_top[:-1], batch_size, augmentation, mean_std, seed, 'sparse')
+    val_gen = create_val_generator(val_df, image_shape_top[:-1], batch_size, mean_std, 'sparse')
 
     train(experiment_path, config, train_gen, val_gen, len(classes_names), seed)

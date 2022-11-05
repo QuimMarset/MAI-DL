@@ -14,5 +14,5 @@ experiments_feature_extraction_path = join_path(experiments_path, 'feature_extra
 
 test_model_path = 'test_model'
 
-image_shape = (256, 256, 3)
-image_shape_feat_extract = (224, 224, 3)
+image_shape_no_top = (256, 256, 3)
+image_shape_top = (224, 224, 3)

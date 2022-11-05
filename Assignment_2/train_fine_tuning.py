@@ -23,9 +23,9 @@ def create_optimizer(config, epoch_steps):
 
 
 def create_model(config, image_shape, num_classes, seed):
-    return FineTuningModel(config.name, image_shape, config.num_to_freeze, 
-        config.dense_list, config.batch_norm, config.dropout, config.activation, 
-        num_classes, seed)
+    return FineTuningModel(config.name, image_shape, config.up_to_freeze, 
+        config.random_layers, config.dense_list, config.batch_norm, 
+        config.dropout, config.activation, num_classes, seed)
 
 
 def train(experiment_path, config, train_gen, val_gen, image_shape, num_classes, seed):
@@ -67,6 +67,11 @@ if __name__ == '__main__':
     batch_size = config.batch_size
     seed = config.seed
     use_augmentation = config.augmentation
+
+    if len(config.dense_list) == 0:
+        image_shape = image_shape_top
+    else:
+        image_shape = image_shape_no_top
 
     train_gen = create_train_generator(train_df, image_shape[:-1], batch_size, use_augmentation, mean_std, seed)
     val_gen = create_val_generator(val_df, image_shape[:-1], batch_size, mean_std)

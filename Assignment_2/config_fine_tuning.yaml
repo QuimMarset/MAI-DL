@@ -1,15 +1,20 @@
 name : 'vgg16'
-num_to_freeze: 40
+# Name of the last layer we freeze (included)
+up_to_freeze: 'block4_conv3'
+# Name of the pre-trained model layers we initialzie random
+random_layers: []
+# List of dense layers units to create. If empty, we will use the pre-trained model FC previous to classification
 dense_list: [128]
-batch_norm: True
+batch_norm: False
 dropout: 0
-lr: 0.0005
+lr: 0.0001
 lr_decay: False
 batch_size: 32
 activation: 'relu'
 augmentation: False
-patience: 15
-epochs: 1
+patience: 3
+epochs: 20
 seed: 42
+# True means using mean and std, False dividing by 255
 normalization: False
 label_smoothing: 0
