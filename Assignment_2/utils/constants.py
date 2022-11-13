@@ -14,5 +14,12 @@ experiments_feature_extraction_path = join_path(experiments_path, 'feature_extra
 
 test_model_path = 'test_model'
 
+pre_trained_path = join_path('models', 'pre_trained_weights')
+vgg_16_places_top_path = join_path(pre_trained_path, 'vgg16_places_top.h5')
+vgg_16_places_no_top_path = join_path(pre_trained_path, 'vgg16_places_no_top.h5')
+vgg_16_hybrid_top_path = join_path(pre_trained_path, 'vgg16_hybrid_top.h5')
+vgg_16_hybrid_no_top_path = join_path(pre_trained_path, 'vgg16_hybrid_no_top.h5')
+
+
 image_shape_no_top = (256, 256, 3)
 image_shape_top = (224, 224, 3)

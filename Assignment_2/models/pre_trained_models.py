@@ -1,25 +1,38 @@
 from tensorflow import keras
+from models.vgg_16_places import create_custom_vgg_16
+
+
+
+def __create_vgg_16_places(include_top, image_shape):
+    return create_custom_vgg_16(include_top, image_shape, is_hybrid=False)
+
+
+def __create_vgg_16_hybrid(include_top, image_shape):
+    return create_custom_vgg_16(include_top, image_shape, is_hybrid=True)
 
 
 def __create_vgg_16(include_top, image_shape):
-    return keras.applications.vgg16.VGG16(include_top=include_top, weights='imagenet', 
-        input_shape=image_shape)
+    return keras.applications.vgg16.VGG16(include_top=include_top, input_shape=image_shape)
 
 
 def __create_vgg_19(include_top, image_shape):
-    return keras.applications.vgg19.VGG19(include_top=include_top, weights='imagenet', 
-        input_shape=image_shape)
+    return keras.applications.vgg19.VGG19(include_top=include_top, input_shape=image_shape)
 
 
 def __create_resnet_50(include_top, image_shape):
-    return keras.applications.resnet50.ResNet50(include_top=include_top, weights='imagenet', 
-        input_shape=image_shape)
+    return keras.applications.resnet50.ResNet50(include_top=include_top, input_shape=image_shape)
 
 
 def __create_pre_trained_model(model_name, include_top=False, image_shape=None):
     
     if model_name == 'vgg16':
         return __create_vgg_16(include_top, image_shape)
+
+    elif model_name == 'vgg16_places':
+        return __create_vgg_16_places(include_top, image_shape)
+
+    elif model_name == 'vgg16_hybrid':
+        return __create_vgg_16_hybrid(include_top, image_shape)
         
     elif model_name == 'vgg19':
         return __create_vgg_19(include_top, image_shape)

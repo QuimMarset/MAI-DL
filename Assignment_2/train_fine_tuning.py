@@ -58,10 +58,6 @@ if __name__ == '__main__':
     train_mean_std = load_mean_std_from_npy(train_mean_std_path)
     classes_names = get_classes_names(classes_names_path)
     
-    mean_std = None
-    if config.normalization:
-        mean_std = train_mean_std
-    
     train_df, val_df = create_train_val_dataframes(data_csv_path, data_path)
 
     batch_size = config.batch_size
@@ -73,7 +69,7 @@ if __name__ == '__main__':
     else:
         image_shape = image_shape_no_top
 
-    train_gen = create_train_generator(train_df, image_shape[:-1], batch_size, use_augmentation, mean_std, seed)
-    val_gen = create_val_generator(val_df, image_shape[:-1], batch_size, mean_std)
+    train_gen = create_train_generator(train_df, image_shape[:-1], batch_size, use_augmentation, config.normalization, config.name, seed)
+    val_gen = create_val_generator(val_df, image_shape[:-1], batch_size, config.normalization, config.name)
 
     train(experiment_path, config, train_gen, val_gen, image_shape, len(classes_names), seed)
