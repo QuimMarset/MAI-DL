@@ -8,5 +8,9 @@ feature_layers: [
 ]
 batch_size: 32
 seed: 42
+standarization: True
+discretization: True
 augmentation: False
 normalization: False
+pos_threshold: 0.15
+neg_threshold: -0.25

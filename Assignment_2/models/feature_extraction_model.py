@@ -11,13 +11,19 @@ from utils.path_utils import join_path
 
 class FeatureExtractionModel:
 
-    def __init__(self, pre_trained_name, feature_layers, num_classes, seed):
+    def __init__(self, pre_trained_name, feature_layers, num_classes, standarization, 
+        discretization, negative_threshold, positive_threshold, seed):
+        
         self.seed = seed
         tf.random.set_seed(seed)
         keras.utils.set_random_seed(seed)
         self.num_classes = num_classes
+        self.standarization = standarization
+        self.discretization = discretization
+        self.negative_threshold = negative_threshold
+        self.positive_threshold = positive_threshold
         self.feature_extractor = create_feature_extraction_base(pre_trained_name, feature_layers)
-        self.classifier = LinearSVC()
+        self.classifier = LinearSVC(random_state=seed)
 
 
     def train_classifier(self, train_gen, train_labels, val_gen):
@@ -54,7 +60,14 @@ class FeatureExtractionModel:
         for _ in range(len(data_gen)):
             batch_images, _ = next(data_gen)
             features.extend(self.__extract_batch_features(batch_images))
-        return np.array(features)
+
+        features = np.array(features)
+        if self.standarization:
+            features = self.__standarize_features(features)
+        if self.discretization:
+            features = self.__discretize_features(features)
+        
+        return features
 
 
     def __extract_batch_features(self, batch_images):
@@ -77,6 +90,13 @@ class FeatureExtractionModel:
         self.stds = np.std(features, axis=0)
         standarized_features = np.divide(features - self.means, self.stds, where=self.stds != 0)
         return standarized_features
+
+
+    def __discretize_features(self, features):
+        features[features > self.positive_threshold] = 1
+        features[features < self.negative_threshold] = -1
+        features[[(features >= self.negative_threshold) & (features <= self.positive_threshold)][0]] = 0
+        return features
 
 
     def __save_summary(self, save_path):
