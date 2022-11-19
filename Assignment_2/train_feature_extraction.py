@@ -20,11 +20,15 @@ def train(experiment_path, config, train_gen, val_gen, num_classes, seed):
         config.standarization, config.discretization, config.neg_threshold, config.pos_threshold, seed)
 
     train_labels = get_train_labels(train_gen)
+    save_array_to_npy_file(train_labels, join_path(experiment_path, 'train_labels.npy'))
     train_predictions, val_predictions = model.train_classifier(train_gen, train_labels, val_gen)
     model.save_model(experiment_path)
+    model.save_features(experiment_path)
     
     train_accuracy = accuracy_score(train_labels, train_predictions)
     val_accuracy = accuracy_score(val_gen.labels, val_predictions)
+
+    print(f'Train accuracy: {train_accuracy}\nVal accuracy: {val_accuracy}')
 
     training_metrics = {'train_predictions' : train_predictions.tolist(), 'val_predictions' : val_predictions.tolist(),
         'train_accuracy' : train_accuracy, 'val_accuracy' : val_accuracy}

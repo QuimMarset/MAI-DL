@@ -1,10 +1,10 @@
 from tensorflow import keras
 import tensorflow as tf
 import numpy as np
-from sklearn.svm import LinearSVC
+from sklearn.svm import SVC
 from models.pre_trained_models import create_feature_extraction_base
 from contextlib import redirect_stdout
-from utils.file_io_utils import load_json_to_string, load_pkl_object, save_object_to_pkl, write_json_string
+from utils.file_io_utils import *
 from utils.path_utils import join_path
 
 
@@ -23,20 +23,22 @@ class FeatureExtractionModel:
         self.negative_threshold = negative_threshold
         self.positive_threshold = positive_threshold
         self.feature_extractor = create_feature_extraction_base(pre_trained_name, feature_layers)
-        self.classifier = LinearSVC(random_state=seed)
+        self.classifier = SVC(random_state=seed)
 
 
     def train_classifier(self, train_gen, train_labels, val_gen):
-        train_features = self.__extract_features(train_gen)
-        self.classifier.fit(train_features, train_labels)
-        train_predictions = self.classifier.predict(train_features)
+        self.train_features = self.__extract_features(train_gen, is_train=True)
+        print('FEATURES!')
+        self.classifier.fit(self.train_features, train_labels)
+        print('TRAINED!')
+        train_predictions = self.classifier.predict(self.train_features)
         val_predictions = self.predict(val_gen)
         return train_predictions, val_predictions
 
 
     def predict(self, generator):
-        test_features = self.__extract_features(generator)
-        return self.classifier.predict(test_features)
+        self.test_features = self.__extract_features(generator, is_train=False)
+        return self.classifier.predict(self.test_features)
 
 
     @classmethod
@@ -55,22 +57,51 @@ class FeatureExtractionModel:
         save_object_to_pkl(self.classifier, join_path(save_path, 'classifier.pkl'))
 
 
-    def __extract_features(self, data_gen):
-        features = []
-        for _ in range(len(data_gen)):
-            batch_images, _ = next(data_gen)
-            features.extend(self.__extract_batch_features(batch_images))
+    def save_features(self, save_path):
+        save_array_to_npy_file(self.train_features, join_path(save_path, 'train_features.npy'))
+        save_array_to_npy_file(self.test_features, join_path(save_path, 'val_features.npy'))
 
-        features = np.array(features)
+
+    def __extract_features(self, data_gen, is_train):
+        features = self.__extract_activations(data_gen)
+
+        if is_train:
+            self.__compute_train_mean_std(features)
+
         if self.standarization:
             features = self.__standarize_features(features)
         if self.discretization:
             features = self.__discretize_features(features)
-        
+
         return features
 
 
-    def __extract_batch_features(self, batch_images):
+    def __standarize_features(self, features):
+        standarized_features = np.divide(features - self.train_means, self.train_stds, where=self.train_stds != 0)
+        return standarized_features
+
+    
+    def __compute_train_mean_std(self, features):
+        self.train_means = np.mean(features, axis=0)
+        self.train_stds = np.std(features, axis=0)
+
+
+    def __discretize_features(self, features):
+        features[features > self.positive_threshold] = 1
+        features[features < self.negative_threshold] = -1
+        features[[(features >= self.negative_threshold) & (features <= self.positive_threshold)][0]] = 0
+        return features
+
+    
+    def __extract_activations(self, data_gen):
+        features = []
+        for _ in range(len(data_gen)):
+            batch_images, _ = next(data_gen)
+            features.extend(self.__extract_batch_activations(batch_images))
+        return np.array(features)
+
+
+    def __extract_batch_activations(self, batch_images):
         batch_features = []
         for batch_layer_output in self.feature_extractor(batch_images):
             batch_layer_output = batch_layer_output.numpy()
@@ -83,20 +114,6 @@ class FeatureExtractionModel:
 
         batch_features = np.concatenate(batch_features, axis=-1)
         return batch_features
-
-    
-    def __standarize_features(self, features):
-        self.means = np.mean(features, axis=0)
-        self.stds = np.std(features, axis=0)
-        standarized_features = np.divide(features - self.means, self.stds, where=self.stds != 0)
-        return standarized_features
-
-
-    def __discretize_features(self, features):
-        features[features > self.positive_threshold] = 1
-        features[features < self.negative_threshold] = -1
-        features[[(features >= self.negative_threshold) & (features <= self.positive_threshold)][0]] = 0
-        return features
 
 
     def __save_summary(self, save_path):

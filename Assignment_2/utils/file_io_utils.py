@@ -39,6 +39,16 @@ def load_mean_std_from_npy(file_path):
     return mean, std
 
 
+def save_array_to_npy_file(array, file_path):
+    with open(file_path, 'wb') as file:
+        np.save(file, array)
+
+
+def load_npy_file_to_np_array(file_path):
+    with open(file_path, 'rb') as file:
+        return np.load(file)
+
+
 def read_yaml_config(file_path):
     with open(file_path, 'r') as file:
         config = yaml.load(file, Loader=yaml.FullLoader)
