@@ -1,12 +1,12 @@
 
 name: 'vgg16'
 feature_layers: [
-    'fc1', 'fc2'
+    'block3_conv3', 'block4_conv3', 'block5_conv3'
 ]
 batch_size: 32
 seed: 42
 standarization: True
-discretization: False
+discretization: True
 augmentation: False
 normalization: True
 pos_threshold: 0.15

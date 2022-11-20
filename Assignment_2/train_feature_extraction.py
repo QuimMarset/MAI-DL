@@ -7,25 +7,15 @@ from image_data_generator import *
 from models.feature_extraction_model import FeatureExtractionModel
 
 
-def get_train_labels(train_gen):
-    labels = []
-    for _ in range(len(train_gen)):
-        _, batch_labels = next(train_gen)
-        labels.extend(batch_labels)
-    return np.array(labels, dtype=int)
-
-
 def train(experiment_path, config, train_gen, val_gen, num_classes, seed):
     model = FeatureExtractionModel(config.name, config.feature_layers, num_classes, 
         config.standarization, config.discretization, config.neg_threshold, config.pos_threshold, seed)
 
-    train_labels = get_train_labels(train_gen)
-    save_array_to_npy_file(train_labels, join_path(experiment_path, 'train_labels.npy'))
-    train_predictions, val_predictions = model.train_classifier(train_gen, train_labels, val_gen)
+    train_predictions, val_predictions = model.train_classifier(train_gen, train_gen.labels, val_gen)
     model.save_model(experiment_path)
     model.save_features(experiment_path)
     
-    train_accuracy = accuracy_score(train_labels, train_predictions)
+    train_accuracy = accuracy_score(train_gen.labels, train_predictions)
     val_accuracy = accuracy_score(val_gen.labels, val_predictions)
 
     print(f'Train accuracy: {train_accuracy}\nVal accuracy: {val_accuracy}')
@@ -58,7 +48,8 @@ if __name__ == '__main__':
     use_augmentation = config.augmentation
     image_shape = image_shape_top
 
-    train_gen = create_train_generator(train_df, image_shape[:-1], batch_size, use_augmentation, config.normalization, config.name, seed, 'sparse')
+    train_gen = create_train_gen_feat_extract(train_df, image_shape[:-1], batch_size, config.normalization, 
+        config.name, 'sparse')
     val_gen = create_val_generator(val_df, image_shape[:-1], batch_size, config.normalization, config.name, 'sparse')
 
     train(experiment_path, config, train_gen, val_gen, len(classes_names), seed)
