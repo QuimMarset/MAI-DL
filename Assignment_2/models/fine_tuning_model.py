@@ -23,7 +23,7 @@ class FineTuningModel:
     
     def compile(self, optimizer, label_smoothing):
         loss_function = keras.losses.CategoricalCrossentropy(label_smoothing=label_smoothing)
-        self.model.compile(optimizer, run_eagerly=True, loss=loss_function, metrics=["accuracy"])
+        self.model.compile(optimizer, run_eagerly=False, loss=loss_function, metrics=["accuracy"])
 
 
     def fit(self, train_gen, epochs, val_gen, patience):
@@ -42,7 +42,9 @@ class FineTuningModel:
 
 
     @classmethod
-    def load_model(cls, load_path):
+    def load_model(cls, load_path, seed):
+        tf.random.set_seed(seed)
+        keras.utils.set_random_seed(seed)
         instance = cls.__new__(cls)
         instance.__load_architecture(load_path)
         instance.__load_weights(load_path)

@@ -1,5 +1,0 @@
-
-
-Freeze + fine + random
-Places365 weights
-XGBoost, KNN, RBG SVM

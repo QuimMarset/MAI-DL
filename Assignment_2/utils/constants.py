@@ -12,7 +12,8 @@ experiments_path = 'experiments'
 experiments_fine_tune_path = join_path(experiments_path, 'fine_tune')
 experiments_feature_extraction_path = join_path(experiments_path, 'feature_extraction')
 
-test_model_path = 'test_model'
+test_fine_tune_model_path = join_path(experiments_fine_tune_path, 'experiment_9')
+test_feat_ext_model_path = join_path(experiments_feature_extraction_path, 'experiment_15')
 
 pre_trained_path = join_path('models', 'pre_trained_weights')
 vgg_16_places_top_path = join_path(pre_trained_path, 'vgg16_places_top.h5')

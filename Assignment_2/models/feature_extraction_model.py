@@ -23,14 +23,12 @@ class FeatureExtractionModel:
         self.negative_threshold = negative_threshold
         self.positive_threshold = positive_threshold
         self.feature_extractor = create_feature_extraction_base(pre_trained_name, feature_layers)
-        self.classifier = SVC(random_state=seed)
+        self.classifier = SVC(random_state=seed, C=10, gamma='scale')
 
 
     def train_classifier(self, train_gen, train_labels, val_gen):
         self.train_features = self.__extract_features(train_gen, is_train=True)
-        print('FEATURES!')
         self.classifier.fit(self.train_features, train_labels)
-        print('TRAINED!')
         train_predictions = self.classifier.predict(self.train_features)
         val_predictions = self.predict(val_gen)
         return train_predictions, val_predictions
@@ -42,10 +40,17 @@ class FeatureExtractionModel:
 
 
     @classmethod
-    def load_model(cls, load_path):
+    def load_model(cls, load_path, seed, standarization, discretization, neg_threshold, pos_threshold):
+        tf.random.set_seed(seed)
+        keras.utils.set_random_seed(seed)
         instance = super().__new__(cls)
+        instance.standarization = standarization
+        instance.discretization = discretization
+        instance.negative_threshold = neg_threshold
+        instance.positive_threshold = pos_threshold
         instance.__load_architecture(load_path)
         instance.__load_weights(load_path)
+        instance.__load_mean_std(load_path)
         instance.classifier = load_pkl_object(join_path(load_path, 'classifier.pkl'))
         return instance
 
@@ -54,6 +59,7 @@ class FeatureExtractionModel:
         self.__save_summary(save_path)
         self.__save_architecture(save_path)
         self.__save_weights(save_path)
+        self.__save_mean_std(save_path)
         save_object_to_pkl(self.classifier, join_path(save_path, 'classifier.pkl'))
 
 
@@ -144,3 +150,14 @@ class FeatureExtractionModel:
         file_path = join_path(save_path, 'feature_extractor_weights')
         self.feature_extractor.save_weights(file_path)
 
+    
+    def __load_mean_std(self, load_path):
+        if self.standarization:
+            self.train_means = load_npy_file_to_np_array(join_path(load_path, 'train_means.npy'))
+            self.train_stds = load_npy_file_to_np_array(join_path(load_path, 'train_stds.npy'))
+
+
+    def __save_mean_std(self, save_path):
+        if self.standarization:
+            save_array_to_npy_file(self.train_means, join_path(save_path, 'train_means.npy'))
+            save_array_to_npy_file(self.train_stds, join_path(save_path, 'train_stds.npy'))

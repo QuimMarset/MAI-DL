@@ -77,8 +77,8 @@ def create_val_generator(dataframe, image_shape, batch_size, use_normalization, 
     return flow_generator(generator, dataframe, image_shape, batch_size, None, False, class_mode) 
 
 
-def create_test_generator(dataframe, image_shape, batch_size, mean_std):
-    return create_val_generator(dataframe, image_shape, batch_size, mean_std)
+def create_test_generator(dataframe, image_shape, batch_size, use_normalization, model_name, class_mode='categorical'):
+    return create_val_generator(dataframe, image_shape, batch_size, use_normalization, model_name, class_mode)
 
 
 def create_train_gen_feat_extract(dataframe, image_shape, batch_size, use_normalization, model_name, class_mode='categorical'):
