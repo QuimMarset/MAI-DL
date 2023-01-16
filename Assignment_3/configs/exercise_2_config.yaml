@@ -1,0 +1,25 @@
+
+
+learning_rate: 0.01
+
+lr_decay: 'exponential'
+
+exponential_decay_parameters:
+    decay_steps: 50
+    decay_rate: 0.85
+
+optimizer: 'RMSProp'
+
+sgd_parameters:
+    momentum: 0.9
+    nesterov: False
+
+adam_parameters:
+    beta_1: 0.5
+    beta_2: 0.6
+
+rmsprop_parameters:
+    rho: 0.7
+    momentum: 0.3
+
+gradient_clip: 0

@@ -15,7 +15,7 @@ from sklearn.metrics import accuracy_score
 
 if __name__ == '__main__':
 
-    experiment_path = join_path(experiments_feature_extraction_path, 'experiment_6')
+    experiment_path = join_path(experiments_feature_extraction_path, 'experiment_16')
     batch_size = 32
     use_normalization = True
 
@@ -31,34 +31,34 @@ if __name__ == '__main__':
     features = np.concatenate([train_features, val_features], axis=0)
     labels = np.concatenate([train_labels, val_labels], axis=0)
 
-    classifier = SVC(random_state=42, C=10, gamma='scale')
-    classifier.fit(train_features, train_labels)
-
-    train_predictions = classifier.predict(train_features)
-    val_predictions = classifier.predict(val_features)
-
-    train_accuracy = accuracy_score(train_gen.labels, train_predictions)
-    val_accuracy = accuracy_score(val_gen.labels, val_predictions)
-
-    print(train_accuracy)
-    print(val_accuracy)
-
-    #parameters = {
-    #    'C' : [10, 100],
-    #    'gamma' : ['scale', 0.1, 1],
-    #}
+    classifier = SVC(random_state=42)
+    #classifier.fit(train_features, train_labels)
 #
-    #split = [-1] * train_features.shape[0] + [0] * val_features.shape[0]
-    #clf = GridSearchCV(classifier, param_grid=parameters, n_jobs=4, cv=PredefinedSplit(split))
+    #train_predictions = classifier.predict(train_features)
+    #val_predictions = classifier.predict(val_features)
 #
-    #clf.fit(features, labels)
-    #print(clf.best_score_)
-    #print(clf.best_params_)
+    #train_accuracy = accuracy_score(train_gen.labels, train_predictions)
+    #val_accuracy = accuracy_score(val_gen.labels, val_predictions)
 #
-    #save_object_to_pkl(clf.best_estimator_, join_path(experiment_path, 'grid_search_clf.pkl'))
-    #write_dict_to_json({'best_params': clf.best_params_, 'best_score' : clf.best_score_}, 
-    #    join_path(experiment_path, 'grid_search_metrics.json'))
-#
+    #print(train_accuracy)
+    #print(val_accuracy)
+
+    parameters = {
+        'C' : [10, 100],
+        'gamma' : ['scale', 0.1, 1],
+    }
+
+    split = [-1] * train_features.shape[0] + [0] * val_features.shape[0]
+    clf = GridSearchCV(classifier, param_grid=parameters, n_jobs=4, cv=PredefinedSplit(split))
+
+    clf.fit(features, labels)
+    print(clf.best_score_)
+    print(clf.best_params_)
+
+    save_object_to_pkl(clf.best_estimator_, join_path(experiment_path, 'grid_search_clf.pkl'))
+    write_dict_to_json({'best_params': clf.best_params_, 'best_score' : clf.best_score_}, 
+        join_path(experiment_path, 'grid_search_metrics.json'))
+
 
 
 

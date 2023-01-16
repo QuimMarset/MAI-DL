@@ -1,0 +1,23 @@
+
+kernel_size: 5
+conv_filters: [32, 64]
+dense_units: [1024]
+dropout: 0.3
+batch_size: 50
+label_smoothing: 0.1
+l2_coef: 0.0001
+seed: 42
+epochs: 1
+
+
+optimizer: 'Adam'
+adam_parameters: {
+    'clipnorm' : 0.1
+}
+
+
+learning_rate: 0.001
+lr_decay: 'exponential'
+exponential_decay_parameters:
+    decay_steps: 100
+    decay_rate: 0.95
